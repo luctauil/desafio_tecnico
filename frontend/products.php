@@ -16,6 +16,13 @@
       <h1 class="text-center">Cadastro Produto</h1>
 
       <form id="productForm"  @submit.prevent="InsertProduct">
+        <div class="form-group">
+                <label for="tipoProduto">Tipo de Produto:</label>
+                <select class="form-control" id="product_type" v-model="product_type" required>
+                    <option v-for="productType in productTypes" :value="productType.id">{{ productType.name }}</option>
+                </select>
+            </div>
+
          <div class="form-group">
             <label for="productName">Produto:</label>
             <input type="text" class="form-control" id="productName" name="productName" v-model="productName" required>
@@ -27,19 +34,14 @@
                 <input type="text" class="form-control" id="price" v-model="price" required>
         </div>
 
-        <div class="form-group">
-                <label for="tipoProduto">Tipo de Produto:</label>
-                <select class="form-control" id="product_type" v-model="product_type" required>
-                    <option v-for="productType in productTypes" :value="productType.id">{{ productType.name }}</option>
-                </select>
-            </div>
+        
 
          <button type="submit" class="btn btn-primary">Cadastrar</button>
       </form>
 
       <hr>
 
-      <h2>Produtos Cadastradas:</h2>
+      <h2>Produtos Cadastrados:</h2>
             <div class="row" id="productGrid">
             <div class="col-12">
                 <ul class="list-group">
@@ -53,7 +55,7 @@
                 <li class="list-group-item" v-for="(product, index) in products" :key="product.id" :class="index % 2 === 0 ? 'even-row' : 'odd-row'">
                     <div class="row">
                         <div class="col-4">{{ product.name }}</div>
-                        <div class="col-4">{{ product.price }}</div>
+                        <div class="col-4">{{ formatMoney( product.price ) }}</div>
                         <div class="col-4">{{ product.type }}</div>
                     </div>
                 </li>
@@ -89,7 +91,7 @@
          axios.post('../backend/api.php?endpoint=product' , new URLSearchParams({
                         'productName': this.productName,
                         'product_type': this.product_type,
-                        'price': this.price
+                        'price': this.price.replace('.', '').replace(',', '.')
                     }))
             .then(response => {
                this.productName = '';
@@ -124,7 +126,19 @@
             .catch(error => {
                console.error(error);
             });
-      }
+        },
+        formatMoney(value) {
+            const numericValue = parseFloat(value);
+            if (isNaN(numericValue)) {
+            return '';
+            }
+
+            const options = {
+            style: 'currency',
+            currency: 'BRL'
+            };
+            return numericValue.toLocaleString('pt-BR', options);
+        }
    },
    mounted() {
         this.findTypeProduct();

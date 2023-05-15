@@ -16,7 +16,7 @@
                 <div class="col-md-6">
                     <div class="card mt-5">
                         <div class="card-body">
-                            <h3 class="card-title text-center">Login - Mercado Tauil</h3>
+                            <h3 class="card-title text-center">Login - Tauil Market</h3>
                             <form @submit.prevent="login">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Usuário</label>
@@ -33,6 +33,13 @@
                 </div>
             </div>
         </div>
+        <footer class="footer fixed-bottom bg-light">
+            <div class="container text-center">
+                <span class="text-muted">Feito por </span>
+                <a href="https://www.linkedin.com/in/lucastauil/" target="_blank" rel="noopener noreferrer">Lucas Tauil</a>
+            </div>
+        </footer>
+
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.7/dist/umd/popper.min.js" integrity="sha384-zYPOMqeu1DAVkHiLqWBUTcbYfZ8osu1Nd6Z89ify25QV9guujx43ITvfi12/QExE" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.min.js" integrity="sha384-Y4oOpwW3duJdCWv5ly8SCFYWqFDsfob/3GkgExXKV4idmbt98QcxXYs9UoXAB7BZ" crossorigin="anonymous"></script>
     </div>

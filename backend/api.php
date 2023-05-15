@@ -2,27 +2,21 @@
 
 error_reporting(0);
 
+include 'conn.php';
+
 function executeQuery($query, $params = []) {
-    $host = 'localhost';
-    $dbName = 'market';
-    $username = 'root';
-    $password = '';
+    global $host, $dbName, $username, $password;
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$dbName", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
-        // Em caso de falha na conexão, retorne um erro
         throw new Exception('Failed to connect to the database.');
     }
 
     try {
-        // Prepara a consulta SQL
         $statement = $pdo->prepare($query);
-
-            $statement->execute();
-
-        // Retorna o resultado da consulta (se houver)
+        $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
         throw new Exception("Failed to execute the query. ". $query);
@@ -30,10 +24,7 @@ function executeQuery($query, $params = []) {
 }
 
 function executeInsert($query, $params = []) {
-    $host = 'localhost';
-    $dbName = 'market';
-    $username = 'root';
-    $password = '';
+    global $host, $dbName, $username, $password;
 
     try {
         $pdo = new PDO("mysql:host=$host;dbname=$dbName", $username, $password);
@@ -58,20 +49,11 @@ function executeInsert($query, $params = []) {
     }
 }
 
-
-
-
-
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Origin, Content-Type');
 
-$method = $_SERVER['REQUEST_METHOD'];
-$path = $_SERVER['REQUEST_URI'];
-
-
 $endpoint = $_GET['endpoint'];
-
 switch ($endpoint) {
     case 'validate_login':
         handleValidateLogin();
@@ -97,27 +79,27 @@ function handleValidateLogin() {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // Consulta SQL para verificar o usuário e a senha
     $query = "SELECT id FROM users WHERE username = '".$username."' AND password = '".$password."' AND active = 1";
 
     try {
-        // Executa a consulta com os parâmetros
         $result = executeQuery($query, [
             'username' => $username,
             'password' => $password
         ]);
 
-        // Verifica se a consulta retornou algum resultado
         if (!empty($result)) {
-            // Usuário e senha corretos
-            $response = [
+            session_start();
+            $_SESSION['auth'] = true;
+
+        $response = [
                 'success' => true,
                 'message' => 'Autenticação bem-sucedida'
             ];
-        } else {
+        } 
+        else {
             $response = [
                 'success' => false,
-                'message' => 'Usuário ou senha incorretos1',
+                'message' => 'Usuário ou senha incorretos',
                 'query' => $query
             ];
         }
@@ -125,7 +107,6 @@ function handleValidateLogin() {
         header('Content-Type: application/json');
         echo json_encode($response);
     } catch (Exception $e) {
-        // Em caso de erro na execução da consulta, retorne um erro
         header('Content-Type: application/json');
         echo json_encode(['error' => $e->getMessage()]);
     }
@@ -173,44 +154,6 @@ function handleProductTypes() {
     }
 }
 
-function getProductTypes() {
-    $sql = "SELECT name, id FROM product_types";
-
-    $result = executeQuery($sql, []);
-    return $result;
-}
-
-
-function getProducts() {
-    $sql = "select p.id, p.name, p.price, t.name as type, r.tax_rate from products as p inner join product_types as t on p.product_type_id = t.id inner join tax_rates as r on t.id = r.product_type_id order by p.name";
-
-    $result = executeQuery($sql, []);
-    return $result;
-}
-
-
-function createProductType($data) {
-    $query = "INSERT INTO product_types (name) VALUES (?)";
-
-    try {
-        $insertId = executeInsert($query, [$data]);
-        echo json_encode(['success' => true, 'insertId' => $insertId]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
-
-function createProduct($productName, $product_type, $price) {
-    $query = "INSERT INTO products (product_type_id, name, price) VALUES (?, ?, ?)";
-
-    try {
-        $insertId = executeInsert($query, [$product_type, $productName, $price]);
-        echo json_encode(['success' => true, 'insertId' => $insertId]);
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-    }
-}
-
 function handleTax(){
     $method = $_SERVER['REQUEST_METHOD'];
 
@@ -243,9 +186,24 @@ function handleSale(){
     }
 }
 
+function getProductTypes() {
+    $sql = "SELECT name, id FROM product_types";
+
+    $result = executeQuery($sql, []);
+    return $result;
+}
+
+
+function getProducts() {
+    $sql = "select p.id, p.name, p.price, t.name as type, r.tax_rate from products as p inner join product_types as t on p.product_type_id = t.id inner join tax_rates as r on t.id = r.product_type_id order by p.name";
+
+    $result = executeQuery($sql, []);
+    return $result;
+}
+
 function getTaxes() 
 {
-    $sql = "SELECT t.id, p.name, t.tax_rate FROM tax_rates AS t INNER JOIN product_types as p ON p.id = t.product_type_id";
+    $sql = "SELECT t.id, p.name, t.tax_rate FROM tax_rates AS t INNER JOIN product_types as p ON p.id = t.product_type_id ORDER BY t.tax_rate desc";
     $result = executeQuery($sql, []);
     return $result;
 }
@@ -262,6 +220,28 @@ function getSales()
     return $result;
 }
 
+function createProductType($data) {
+    $query = "INSERT INTO product_types (name) VALUES (?)";
+
+    try {
+        $insertId = executeInsert($query, [$data]);
+        echo json_encode(['success' => true, 'insertId' => $insertId]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+function createProduct($productName, $product_type, $price) {
+    $query = "INSERT INTO products (product_type_id, name, price) VALUES (?, ?, ?)";
+
+    try {
+        $insertId = executeInsert($query, [$product_type, $productName, $price]);
+        echo json_encode(['success' => true, 'insertId' => $insertId]);
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
 function createTax($product_type, $tax){
     $query = "INSERT INTO tax_rates (product_type_id, tax_rate) VALUES (?, ?)";
     
@@ -275,7 +255,6 @@ function createTax($product_type, $tax){
 
 function createSale($itens_venda, $total_sale)
 {
-    
     try {
         $itens_venda = json_decode($itens_venda, true);
 

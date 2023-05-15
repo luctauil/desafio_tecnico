@@ -2,7 +2,7 @@
 
 <div class="container">
 
-    <h1>Bem-vindo ao Mercado Tauil </h1>
+    <h1>Bem-vindo ao Tauil Market</h1>
 
 </div>
 

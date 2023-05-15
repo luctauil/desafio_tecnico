@@ -18,7 +18,7 @@
             <div class="form-group">
                 <label for="product">Produto:</label>
                 <select class="form-control" id="productSelected" v-model="productSelected" required>
-                    <option v-for="product in products" :value="product.id">{{ product.name }} - {{ product.price }}</option>
+                    <option v-for="product in products" :value="product.id">{{ product.name }} - {{ formatMoney( product.price ) }}</option>
                 </select>
             </div>
 
@@ -47,10 +47,10 @@
                     
                     <div class="row">
                         <div class="col-2">{{ item.name }}</div>
-                        <div class="col-2">{{ item.price }}</div>
+                        <div class="col-2">{{  formatMoney( item.price ) }}</div>
                         <div class="col-2">{{ item.qtd }}</div>
-                        <div class="col-2">{{ item.total_price }}</div>
-                        <div class="col-2">{{ item.tax_item }}</div>
+                        <div class="col-2">{{ formatMoney( item.total_price ) }}</div>
+                        <div class="col-2">{{ formatMoney( item.tax_item ) }}</div>
 
                     </div>
                 </li>
@@ -61,8 +61,8 @@
         <div class="row">
             <div class="col-12">
                 <ul class="list-group">
-                    <li class="list-group-item">Total: <strong>{{ total_sale }}</strong></li>
-                    <li class="list-group-item">Impostos: <strong>{{ total_tax }}</strong></li>
+                    <li class="list-group-item">Total: <strong>{{ formatMoney( total_sale ) }}</strong></li>
+                    <li class="list-group-item">Impostos: <strong>{{ formatMoney( total_tax ) }}</strong></li>
                 </ul>
                 <br />
             </div>
@@ -93,9 +93,9 @@
                     
                     <div class="row">
                         <div class="col-2">{{ sale.id }}</div>
-                        <div class="col-2">{{ sale.sale_date }}</div>
-                        <div class="col-2">{{ sale.total_amount }}</div>
-                        <div class="col-2">{{ sale.tax }}</div>
+                        <div class="col-2">{{ formatDateTime( sale.sale_date ) }}</div>
+                        <div class="col-2">{{ formatMoney( sale.total_amount ) }}</div>
+                        <div class="col-2">{{ formatMoney( sale.tax ) }}</div>
                     </div>
                 </li>
                 </ul>
@@ -202,12 +202,30 @@
                 this.qtd = '';
                 this.total_sale = 0;
                 this.total_tax = 0;
+                this.findSales();
             })
             .catch(error => {
                console.error(error);
             });
             
+        },
+        formatMoney(value) {
+            const numericValue = parseFloat(value);
+            if (isNaN(numericValue)) {
+            return '';
+            }
+
+            const options = {
+            style: 'currency',
+            currency: 'BRL'
+            };
+            return numericValue.toLocaleString('pt-BR', options);
+        },
+        formatDateTime(datetime) {
+            const options = { day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+            return new Date(datetime).toLocaleDateString('pt-BR', options);
         }
+
    },
    mounted() {
         this.findProducts();

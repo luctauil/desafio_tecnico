@@ -11,7 +11,7 @@
 </style>
 
 <div id="app" class="container">
-        <h1 class="text-center">Taxa de Imposto por Tipo de Produto</h1>
+        <h1 class="text-center">Imposto por Tipo de Produto</h1>
 
         <form @submit.prevent="InsertTax">
             <div class="form-group">
@@ -34,14 +34,14 @@
 
             <hr>
 
-            <h2>Taxas Cadastradas:</h2>
+            <h2>Impostos Cadastrados:</h2>
             <div class="row" id="productTypeGrid">
             <div class="col-12">
                 <ul class="list-group">
                 <li class="list-group-item" v-for="(taxe, index) in taxes" :key="taxe.id" :class="index % 2 === 0 ? 'even-row' : 'odd-row'">
                     <div class="row">
                         <div class="col-6">{{ taxe.name }}</div>
-                        <div class="col-6">{{ taxe.tax_rate }}</div>
+                        <div class="col-6">{{ formatPercentage( taxe.tax_rate ) }}</div>
                     </div>
                 </li>
                 </ul>
@@ -67,7 +67,7 @@
 
                         axios.post('../backend/api.php?endpoint=tax' , new URLSearchParams({
                                         'product_type': this.product_type,
-                                        'tax': this.tax,
+                                        'tax': this.tax.replace('.', '').replace(',', '.'),
                                     }))
                             .then(response => {
                                 alert("Taxa cadastrada com sucesso!");
@@ -99,6 +99,20 @@
                         .catch(error => {
                             console.error(error);
                         });
+                },
+                formatPercentage(value) {
+                    const numericValue = parseFloat(value);
+                    if (isNaN(numericValue)) {
+                    return '';
+                    }
+
+                    const options = {
+                    style: 'percent',
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                    };
+
+                    return (numericValue / 100).toLocaleString('pt-BR', options);
                 }
             },
             mounted() {

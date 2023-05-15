@@ -48,3 +48,18 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (username, password, active) VALUES ('admin', '12345678', 1);
+INSERT INTO product_types (id, name) VALUES (1, 'Higiene');
+INSERT INTO product_types (id, name) VALUES (2, 'Decoração');
+INSERT INTO product_types (id, name) VALUES (3, 'Bebidas');
+
+INSERT INTO tax_rates (id, product_type_id, tax_rate) VALUES (1, 1, 2.5);
+INSERT INTO tax_rates (id, product_type_id, tax_rate) VALUES (2, 2, 4.5);
+INSERT INTO tax_rates (id, product_type_id, tax_rate) VALUES (3, 3, 4);
+
+INSERT INTO products (id, product_type_id, name, price) VALUES (1, 1, 'Desodorante', 11.99 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (2, 1, 'Pasta de Dente', 9.99 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (3, 2, 'Luminária', 70.00 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (4, 3, 'Refrigerante', 12 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (5, 3, 'Água sem gás', 3 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (6, 3, 'Água com gás', 3 );
+INSERT INTO products (id, product_type_id, name, price) VALUES (7, 3, 'Suco', 5 );
